@@ -34,7 +34,8 @@ yarn-error.log*
 Thumbs.db
 
 # Convex
-convex/_generated
+# Include generated API for client builds
+# (was previously excluded, causing Docker build to miss files)
 
 # Temp files
 *.log

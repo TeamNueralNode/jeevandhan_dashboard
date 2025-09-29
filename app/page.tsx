@@ -7,9 +7,11 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   console.log("Login page mounted");
+  const router = useRouter();
   const { login, loading } = useAuth();
   const [roleId, setRoleId] = useState("");
   const [password, setPassword] = useState("");
@@ -47,7 +49,7 @@ export default function Home() {
         
         if (result?.success) {
           console.log("Login successful, redirecting to dashboard");
-          window.location.href = "/dashboard";
+          router.replace("/dashboard");
         } else {
           const errorMsg = result?.message || "Invalid credentials";
           console.log("Login failed:", errorMsg);
