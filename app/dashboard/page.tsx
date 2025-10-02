@@ -235,6 +235,12 @@ export default function Dashboard() {
     return "text-red-600";
   };
 
+  const getScoreBarColor = (score: number) => {
+    if (score >= 80) return "bg-green-600";
+    if (score >= 60) return "bg-yellow-600";
+    return "bg-red-600";
+  };
+
   const handleApproveApplication = async (applicationId: string) => {
     try {
       await reviewApplication({
@@ -824,7 +830,7 @@ export default function Dashboard() {
                           <div className="flex items-center">
                             <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                               <div
-                                className={`h-2 rounded-full ${getScoreColor(score.compositeScore)}`}
+                                className={`h-2 rounded-full ${getScoreBarColor(score.compositeScore)}`}
                                 style={{ width: `${score.compositeScore}%` }}
                               ></div>
                             </div>
