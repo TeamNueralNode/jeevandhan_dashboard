@@ -100,6 +100,12 @@ export default function Home() {
     }
   };
 
+  const handleFillAdminCredentials = () => {
+    setRoleId("admin");
+    setPassword("admin");
+    setError("");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
@@ -202,6 +208,17 @@ export default function Home() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+            </div>
+            <div className="pt-2">
+              <Button 
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleFillAdminCredentials}
+                className="w-full text-xs"
+              >
+                Use Admin Credentials (admin/admin)
+              </Button>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
