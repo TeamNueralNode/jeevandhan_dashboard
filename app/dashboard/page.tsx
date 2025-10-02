@@ -59,7 +59,7 @@ export default function Dashboard() {
   const { user, logout, isAuthenticated, loading } = useAuth();
   const [activeView, setActiveView] = useState("applications");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedApplication, setSelectedApplication] = useState<string | null>(null);
+  const [_selectedApplication, setSelectedApplication] = useState<string | null>(null);
   const [selectedApplications, setSelectedApplications] = useState<string[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterRiskBand, setFilterRiskBand] = useState<string>("all");
