@@ -82,10 +82,6 @@ export default function Dashboard() {
   const reviewApplication = useMutation(api.digitalLending.reviewLendingApplication);
   const initializeData = useMutation(api.initializeData.initializeCompleteData);
 
-  // Compute selected score from creditScores
-  const selectedScore = selectedApplication && creditScores ? 
-    creditScores.find(score => score.beneficiaryId === selectedApplication) : null;
-
   // Handler functions
   const handleInitializeData = useCallback(async () => {
     try {
@@ -1692,7 +1688,7 @@ export default function Dashboard() {
               <CardContent className="space-y-2">
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <Calendar className="h-4 w-4 mr-2" />
-                  Today's Applications
+                  Today&apos;s Applications
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <AlertCircle className="h-4 w-4 mr-2" />

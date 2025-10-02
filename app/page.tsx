@@ -61,7 +61,7 @@ export default function Home() {
         if (result?.success) {
           console.log("Login successful, storing user data and redirecting to dashboard");
           // Call the auth context login to store user data
-          await login(roleId.trim(), password.trim());
+          await login(roleId.trim());
           router.replace("/dashboard");
         } else {
           const errorMsg = result?.message || "Invalid credentials";
