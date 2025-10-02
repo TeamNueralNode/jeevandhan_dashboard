@@ -119,6 +119,28 @@ export default defineSchema({
     .index("by_dataType", ["dataType"])
     .index("by_monthYear", ["monthYear"]),
 
+  // Consumption Documents (file uploads)
+  consumptionDocuments: defineTable({
+    documentId: v.string(),
+    beneficiaryId: v.string(),
+    consumptionDataId: v.string(), // Links to consumptionData
+    documentType: v.string(), // "electricity_bill", "mobile_recharge", "utility_bill"
+    fileName: v.string(),
+    fileSize: v.number(),
+    fileType: v.string(), // "image/jpeg", "application/pdf", etc.
+    storageUrl: v.string(), // URL to stored file
+    uploadDate: v.number(),
+    verificationStatus: v.string(), // "pending", "verified", "rejected"
+    verificationNotes: v.optional(v.string()),
+    verifiedBy: v.optional(v.string()),
+    verifiedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_beneficiaryId", ["beneficiaryId"])
+    .index("by_consumptionDataId", ["consumptionDataId"])
+    .index("by_documentType", ["documentType"])
+    .index("by_verificationStatus", ["verificationStatus"]),
+
   // Credit Scores
   creditScores: defineTable({
     scoreId: v.string(),

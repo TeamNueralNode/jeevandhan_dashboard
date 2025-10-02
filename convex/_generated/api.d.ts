@@ -16,6 +16,7 @@ import type {
 import type * as auth from "../auth.js";
 import type * as beneficiaries from "../beneficiaries.js";
 import type * as consumptionData from "../consumptionData.js";
+import type * as consumptionUpload from "../consumptionUpload.js";
 import type * as creditScoring from "../creditScoring.js";
 import type * as debug from "../debug.js";
 import type * as digitalLending from "../digitalLending.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   beneficiaries: typeof beneficiaries;
   consumptionData: typeof consumptionData;
+  consumptionUpload: typeof consumptionUpload;
   creditScoring: typeof creditScoring;
   debug: typeof debug;
   digitalLending: typeof digitalLending;

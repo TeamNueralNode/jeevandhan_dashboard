@@ -347,6 +347,22 @@ export const getCreditScores = query({
   },
 });
 
+// Query to get credit scores by beneficiary ID
+export const getCreditScoresByBeneficiary = query({
+  args: {
+    beneficiaryId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const scores = await ctx.db
+      .query("creditScores")
+      .filter((q) => q.eq(q.field("beneficiaryId"), args.beneficiaryId))
+      .order("desc")
+      .collect();
+    
+    return scores;
+  },
+});
+
 // Query to get credit score analytics
 export const getCreditScoreAnalytics = query({
   args: {},

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import Providers from "./components/providers";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { ToastProvider } from "@/components/toast-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,6 +32,7 @@ export default function RootLayout({
           <Providers>
             {children}
           </Providers>
+          <ToastProvider />
         </ErrorBoundary>
       </body>
     </html>
