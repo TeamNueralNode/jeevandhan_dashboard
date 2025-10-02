@@ -14,9 +14,16 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as auth from "../auth.js";
+import type * as beneficiaries from "../beneficiaries.js";
+import type * as consumptionData from "../consumptionData.js";
+import type * as creditScoring from "../creditScoring.js";
 import type * as debug from "../debug.js";
+import type * as digitalLending from "../digitalLending.js";
 import type * as init from "../init.js";
+import type * as initializeData from "../initializeData.js";
+import type * as initializeDemo from "../initializeDemo.js";
 import type * as roles from "../roles.js";
+import type * as sampleData from "../sampleData.js";
 import type * as util from "../util.js";
 
 /**
@@ -29,9 +36,16 @@ import type * as util from "../util.js";
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  beneficiaries: typeof beneficiaries;
+  consumptionData: typeof consumptionData;
+  creditScoring: typeof creditScoring;
   debug: typeof debug;
+  digitalLending: typeof digitalLending;
   init: typeof init;
+  initializeData: typeof initializeData;
+  initializeDemo: typeof initializeDemo;
   roles: typeof roles;
+  sampleData: typeof sampleData;
   util: typeof util;
 }>;
 export declare const api: FilterApi<

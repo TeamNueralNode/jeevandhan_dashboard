@@ -4,22 +4,33 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth/auth-context";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
+import { Database, Users, TrendingUp } from "lucide-react";
 
 export default function Home() {
   console.log("Login page mounted");
   const router = useRouter();
-  const { login, loading } = useAuth();
+  const { login, loading, isAuthenticated } = useAuth();
   const [roleId, setRoleId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, router]);
   
   // Debug: Log when mutation is available
   const verifyRole = useMutation(api.roles.verifyRoleCredentials);
+  const initializeCompleteData = useMutation(api.initializeData.initializeCompleteData);
   console.log("Verify role mutation available:", !!verifyRole);
+  
+  const [isInitializing, setIsInitializing] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +59,9 @@ export default function Home() {
         console.log("Verify role result:", result);
         
         if (result?.success) {
-          console.log("Login successful, redirecting to dashboard");
+          console.log("Login successful, storing user data and redirecting to dashboard");
+          // Call the auth context login to store user data
+          await login(roleId.trim(), password.trim());
           router.replace("/dashboard");
         } else {
           const errorMsg = result?.message || "Invalid credentials";
@@ -65,9 +78,102 @@ export default function Home() {
     }
   };
 
+  const handleInitializeDemo = async () => {
+    try {
+      setIsInitializing(true);
+      setError("");
+      
+      console.log("Resetting and initializing comprehensive demo data...");
+      const result = await initializeCompleteData({ forceReset: true });
+      console.log("Complete data initialized:", result);
+      
+      if (result?.success) {
+        setError(`Demo data initialized successfully! Created: ${result.counts?.beneficiaries || 0} beneficiaries, ${result.counts?.applications || 0} applications, ${result.counts?.creditScores || 0} credit scores. You can now login with 'admin' / 'admin'`);
+      } else {
+        setError(result?.message || "Demo data initialization completed");
+      }
+    } catch (err) {
+      console.error("Demo initialization error:", err);
+      setError("Failed to initialize demo data. Please try again.");
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-[400px]">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        {/* Left side - Information */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              NBCFDC Credit Scoring Dashboard
+            </h1>
+            <p className="text-xl text-gray-600 mb-6">
+              Beneficiary Credit Scoring with Income Verification Layer for Direct Digital Lending
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
+              <Users className="h-8 w-8 text-blue-600" />
+              <div>
+                <div className="font-semibold">Beneficiaries</div>
+                <div className="text-sm text-gray-600">Manage profiles</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
+              <TrendingUp className="h-8 w-8 text-green-600" />
+              <div>
+                <div className="font-semibold">Credit Scoring</div>
+                <div className="text-sm text-gray-600">AI/ML based</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
+              <Database className="h-8 w-8 text-purple-600" />
+              <div>
+                <div className="font-semibold">Digital Lending</div>
+                <div className="text-sm text-gray-600">Auto approval</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="font-semibold mb-3">Key Features:</h3>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li>• Historical repayment behavior analysis</li>
+              <li>• Income verification through consumption patterns</li>
+              <li>• Composite credit scoring with risk bands</li>
+              <li>• Same-day loan approval for eligible beneficiaries</li>
+              <li>• Transparent and explainable AI models</li>
+            </ul>
+          </div>
+          
+          <Card className="bg-blue-50 border-blue-200">
+            <CardHeader>
+              <CardTitle className="text-blue-900 flex items-center">
+                <Database className="h-5 w-5 mr-2" />
+                Demo Data
+              </CardTitle>
+              <CardDescription>
+                Initialize sample beneficiaries, loans, and credit scores for demonstration
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={handleInitializeDemo}
+                disabled={isInitializing}
+                className="w-full"
+                variant="outline"
+              >
+                {isInitializing ? "Initializing..." : "Initialize Demo Data"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Right side - Login */}
+        <Card className="w-full max-w-md mx-auto">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           {error && (
@@ -116,7 +222,8 @@ export default function Home() {
             </div>
           </CardFooter>
         </form>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
