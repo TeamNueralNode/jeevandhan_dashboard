@@ -8,12 +8,12 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Users, 
-  TrendingUp, 
-  CreditCard, 
-  AlertCircle, 
-  CheckCircle, 
+import {
+  Users,
+  TrendingUp,
+  CreditCard,
+  AlertCircle,
+  CheckCircle,
   Clock,
   DollarSign,
   BarChart3,
@@ -60,7 +60,7 @@ export default function Dashboard() {
   const { user, logout, isAuthenticated, loading } = useAuth();
   const [activeView, setActiveView] = useState("applications");
   const [searchTerm, setSearchTerm] = useState("");
-  const [_selectedApplication, setSelectedApplication] = useState<string | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<string | null>(null);
   const [selectedApplications, setSelectedApplications] = useState<string[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterRiskBand, setFilterRiskBand] = useState<string>("all");
@@ -79,7 +79,8 @@ export default function Dashboard() {
   const digitalLendingAnalytics = useQuery(api.digitalLending.getDigitalLendingAnalytics, {});
   const applications = useQuery(api.digitalLending.getLendingApplications, { limit: 50 });
   const creditScores = useQuery(api.creditScoring.getCreditScores, { limit: 50 });
-  
+  const beneficiaries = useQuery(api.beneficiaries.getBeneficiaries, { limit: 100 });
+
   // Mutations
   const reviewApplication = useMutation(api.digitalLending.reviewLendingApplication);
   const initializeData = useMutation(api.initializeData.initializeCompleteData);
@@ -116,8 +117,8 @@ export default function Dashboard() {
       // Search filter
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
-        if (!app.beneficiaryId.toLowerCase().includes(searchLower) && 
-            !app.purpose.toLowerCase().includes(searchLower)) {
+        if (!app.beneficiaryId.toLowerCase().includes(searchLower) &&
+          !app.purpose.toLowerCase().includes(searchLower)) {
           return false;
         }
       }
@@ -181,7 +182,7 @@ export default function Dashboard() {
 
   // Show loading state while checking authentication - AFTER ALL HOOKS
   if (loading) {
-  return (
+    return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -292,8 +293,8 @@ export default function Dashboard() {
     try {
       for (const appId of selectedApplications) {
         if (action === "approve") {
-          await reviewApplication({ 
-            applicationId: appId, 
+          await reviewApplication({
+            applicationId: appId,
             decision: "approve",
             reviewedBy: user?.name || "System",
             approvedAmount: undefined,
@@ -302,8 +303,8 @@ export default function Dashboard() {
             conditions: []
           });
         } else {
-          await reviewApplication({ 
-            applicationId: appId, 
+          await reviewApplication({
+            applicationId: appId,
             decision: "reject",
             reviewedBy: user?.name || "System",
             rejectionReason: "Bulk rejection"
@@ -319,8 +320,8 @@ export default function Dashboard() {
   };
 
   const toggleApplicationSelection = (appId: string) => {
-    setSelectedApplications(prev => 
-      prev.includes(appId) 
+    setSelectedApplications(prev =>
+      prev.includes(appId)
         ? prev.filter(id => id !== appId)
         : [...prev, appId]
     );
@@ -366,7 +367,7 @@ export default function Dashboard() {
     const approvalRate = applications?.page?.length ? Math.round((applications.page.filter(app => app.approvalStatus === 'auto_approved').length / applications.page.length) * 100) : 0;
     const avgScore = creditScores?.length ? Math.round(creditScores.reduce((sum, score) => sum + score.compositeScore, 0) / creditScores.length) : 0;
 
-  return (
+    return (
       <div className="flex-1 p-3 sm:p-6">
         {/* Enhanced KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
@@ -380,7 +381,7 @@ export default function Dashboard() {
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-gray-900">
                 {beneficiaryStats?.total || 0}
-        </div>
+              </div>
               <div className="flex items-center mt-1">
                 <ArrowUp className="h-3 w-3 text-green-500 mr-1" />
                 <span className="text-xs text-green-600">+12% from last month</span>
@@ -449,49 +450,57 @@ export default function Dashboard() {
 
         {/* Charts and Analytics */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <PieChart className="h-5 w-5 mr-2 text-blue-600" />
-                Risk Distribution
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { name: "Low Risk-High Need", count: applications?.page?.filter(app => {
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <PieChart className="h-5 w-5 mr-2 text-blue-600" />
+              Risk Distribution
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                {
+                  name: "Low Risk-High Need", count: applications?.page?.filter(app => {
                     const score = creditScores?.find(s => s.beneficiaryId === app.beneficiaryId);
                     return score?.riskBand === 'Low Risk-High Need';
-                  }).length || 0, color: "bg-green-500", textColor: "text-green-700" },
-                  { name: "Low Risk-Low Need", count: applications?.page?.filter(app => {
+                  }).length || 0, color: "bg-green-500", textColor: "text-green-700"
+                },
+                {
+                  name: "Low Risk-Low Need", count: applications?.page?.filter(app => {
                     const score = creditScores?.find(s => s.beneficiaryId === app.beneficiaryId);
                     return score?.riskBand === 'Low Risk-Low Need';
-                  }).length || 0, color: "bg-blue-500", textColor: "text-blue-700" },
-                  { name: "High Risk-High Need", count: applications?.page?.filter(app => {
+                  }).length || 0, color: "bg-blue-500", textColor: "text-blue-700"
+                },
+                {
+                  name: "High Risk-High Need", count: applications?.page?.filter(app => {
                     const score = creditScores?.find(s => s.beneficiaryId === app.beneficiaryId);
                     return score?.riskBand === 'High Risk-High Need';
-                  }).length || 0, color: "bg-yellow-500", textColor: "text-yellow-700" },
-                  { name: "High Risk-Low Need", count: applications?.page?.filter(app => {
+                  }).length || 0, color: "bg-yellow-500", textColor: "text-yellow-700"
+                },
+                {
+                  name: "High Risk-Low Need", count: applications?.page?.filter(app => {
                     const score = creditScores?.find(s => s.beneficiaryId === app.beneficiaryId);
                     return score?.riskBand === 'High Risk-Low Need';
-                  }).length || 0, color: "bg-red-500", textColor: "text-red-700" }
-                ].map((band) => {
-                  const percentage = applications?.page?.length ? Math.round((band.count / applications.page.length) * 100) : 0;
-                  return (
-                    <div key={band.name} className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full ${band.color} mr-3`}></div>
-                        <span className="text-sm text-gray-700">{band.name}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">{band.count}</span>
-                        <span className={`text-xs ${band.textColor}`}>({percentage}%)</span>
-      </div>
-    </div>
-  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+                  }).length || 0, color: "bg-red-500", textColor: "text-red-700"
+                }
+              ].map((band) => {
+                const percentage = applications?.page?.length ? Math.round((band.count / applications.page.length) * 100) : 0;
+                return (
+                  <div key={band.name} className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className={`w-3 h-3 rounded-full ${band.color} mr-3`}></div>
+                      <span className="text-sm text-gray-700">{band.name}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium">{band.count}</span>
+                      <span className={`text-xs ${band.textColor}`}>({percentage}%)</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
 
           <Card>
             <CardHeader>
@@ -596,16 +605,16 @@ export default function Dashboard() {
               {selectedApplications.length > 0 && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm text-gray-600">{selectedApplications.length} selected</span>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     onClick={() => handleBulkAction("approve")}
                     className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
                   >
                     <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     Approve
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => handleBulkAction("reject")}
                     className="text-red-600 border-red-600 hover:bg-red-50 text-xs sm:text-sm"
@@ -615,8 +624,8 @@ export default function Dashboard() {
                   </Button>
                 </div>
               )}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
                 className="text-xs sm:text-sm"
@@ -630,8 +639,8 @@ export default function Dashboard() {
                 Export
               </Button>
               {(!applications?.page || applications.page.length === 0) && (
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   onClick={handleInitializeData}
                   className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm"
                 >
@@ -653,8 +662,8 @@ export default function Dashboard() {
                 className="pl-10"
               />
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => {
                 setSearchTerm("");
@@ -672,7 +681,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select 
+                <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -686,7 +695,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Risk Band</label>
-                <select 
+                <select
                   value={filterRiskBand}
                   onChange={(e) => setFilterRiskBand(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -725,15 +734,15 @@ export default function Dashboard() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="rounded"
                     checked={selectedApplications.length === filteredAndSortedApplications.length && filteredAndSortedApplications.length > 0}
                     onChange={selectAllApplications}
                   />
                 </th>
                 <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <button 
+                  <button
                     onClick={() => handleSort("beneficiaryId")}
                     className="flex items-center space-x-1 hover:text-gray-700"
                   >
@@ -744,7 +753,7 @@ export default function Dashboard() {
                   </button>
                 </th>
                 <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <button 
+                  <button
                     onClick={() => handleSort("score")}
                     className="flex items-center space-x-1 hover:text-gray-700"
                   >
@@ -758,7 +767,7 @@ export default function Dashboard() {
                   Risk Band
                 </th>
                 <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <button 
+                  <button
                     onClick={() => handleSort("amount")}
                     className="flex items-center space-x-1 hover:text-gray-700"
                   >
@@ -780,15 +789,16 @@ export default function Dashboard() {
               {filteredAndSortedApplications.length > 0 ? (
                 filteredAndSortedApplications.map((application: { applicationId: string; beneficiaryId: string; requestedAmount: number; purpose: string; approvalStatus: string; createdAt: number; processingTime?: number }) => {
                   const score = creditScores?.find(s => s.beneficiaryId === application.beneficiaryId);
+                  const beneficiary = beneficiaries?.page?.find((b: { beneficiaryId: string }) => b.beneficiaryId === application.beneficiaryId);
                   const isSelected = selectedApplications.includes(application.applicationId);
                   return (
-                    <tr 
-                      key={application.applicationId} 
+                    <tr
+                      key={application.applicationId}
                       className={`hover:bg-gray-50 ${isSelected ? 'bg-blue-50' : ''}`}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           className="rounded"
                           checked={isSelected}
                           onChange={() => toggleApplicationSelection(application.applicationId)}
@@ -801,10 +811,10 @@ export default function Dashboard() {
                           </div>
                           <div className="ml-3">
                             <div className="text-sm font-medium text-gray-900">
-                              {application.beneficiaryId}
+                              {beneficiary?.name || application.beneficiaryId}
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {application.purpose}
+                            <div className="text-xs text-gray-500">
+                              {application.beneficiaryId} • {application.purpose}
                             </div>
                           </div>
                         </div>
@@ -813,7 +823,7 @@ export default function Dashboard() {
                         {score ? (
                           <div className="flex items-center">
                             <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                              <div 
+                              <div
                                 className={`h-2 rounded-full ${getScoreColor(score.compositeScore)}`}
                                 style={{ width: `${score.compositeScore}%` }}
                               ></div>
@@ -898,8 +908,8 @@ export default function Dashboard() {
                         }
                       </div>
                       {(searchTerm || filterStatus !== "all" || filterRiskBand !== "all" || dateRange.from || dateRange.to) && (
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => {
                             setSearchTerm("");
@@ -919,6 +929,218 @@ export default function Dashboard() {
           </table>
         </div>
       </div>
+
+      {/* Application Detail Modal */}
+      {selectedApplication && (() => {
+        const app = applications?.page?.find((a: { beneficiaryId: string }) => a.beneficiaryId === selectedApplication);
+        const beneficiary = beneficiaries?.page?.find((b: { beneficiaryId: string }) => b.beneficiaryId === selectedApplication);
+        const score = creditScores?.find(s => s.beneficiaryId === selectedApplication);
+
+        if (!app || !beneficiary) return null;
+
+        return (
+          <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedApplication(null)}>
+            <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">{beneficiary.name}</h2>
+                  <p className="text-sm text-gray-500">{beneficiary.beneficiaryId}</p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedApplication(null)}>
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                {/* Application Info */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center">
+                    <ClipboardList className="h-5 w-5 mr-2 text-blue-600" />
+                    Application Details
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                    <div>
+                      <span className="text-xs text-gray-500">Application ID</span>
+                      <p className="font-medium">{app.applicationId}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Status</span>
+                      <p><span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(app.approvalStatus)}`}>
+                        {app.approvalStatus?.replace('_', ' ')}
+                      </span></p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Requested Amount</span>
+                      <p className="font-medium text-lg">₹{app.requestedAmount?.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Purpose</span>
+                      <p className="font-medium capitalize">{app.purpose?.replace('_', ' ')}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Applied Date</span>
+                      <p className="font-medium">{new Date(app.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    {app.processingTime && (
+                      <div>
+                        <span className="text-xs text-gray-500">Processing Time</span>
+                        <p className="font-medium">{app.processingTime}s</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Credit Score */}
+                {score && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 flex items-center">
+                      <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
+                      Credit Score Analysis
+                    </h3>
+                    <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center">
+                          <span className="text-xs text-gray-500">Composite Score</span>
+                          <p className={`text-3xl font-bold ${getScoreColor(score.compositeScore)}`}>{score.compositeScore}</p>
+                        </div>
+                        <div className="text-center">
+                          <span className="text-xs text-gray-500">Repayment Score</span>
+                          <p className="text-2xl font-semibold text-gray-700">{score.repaymentScore}</p>
+                        </div>
+                        <div className="text-center">
+                          <span className="text-xs text-gray-500">Income Score</span>
+                          <p className="text-2xl font-semibold text-gray-700">{score.incomeScore}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-500">Risk Band</span>
+                        <p className="mt-1">
+                          <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getRiskBandColor(score.riskBand)}`}>
+                            {score.riskBand}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Beneficiary Information */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center">
+                    <User className="h-5 w-5 mr-2 text-purple-600" />
+                    Beneficiary Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                    <div>
+                      <span className="text-xs text-gray-500">Name</span>
+                      <p className="font-medium">{beneficiary.name}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Phone</span>
+                      <p className="font-medium flex items-center">
+                        <Phone className="h-3 w-3 mr-1" />
+                        {beneficiary.phoneNumber}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Category</span>
+                      <p className="font-medium">{beneficiary.demographicInfo?.category}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Age</span>
+                      <p className="font-medium">{beneficiary.demographicInfo?.age} years</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Gender</span>
+                      <p className="font-medium capitalize">{beneficiary.demographicInfo?.gender}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Occupation</span>
+                      <p className="font-medium capitalize">{beneficiary.demographicInfo?.occupation}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-xs text-gray-500">Address</span>
+                      <p className="font-medium flex items-center">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {beneficiary.address?.street}, {beneficiary.address?.city}, {beneficiary.address?.state} - {beneficiary.address?.pincode}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Status</span>
+                      <p className="font-medium">
+                        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${beneficiary.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                          {beneficiary.status}
+                        </span>
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Channel Partner</span>
+                      <p className="font-medium">{beneficiary.channelPartner}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* KYC Documents */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center">
+                    <Shield className="h-5 w-5 mr-2 text-orange-600" />
+                    KYC Documents
+                  </h3>
+                  <div className="grid grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg">
+                    <div>
+                      <span className="text-xs text-gray-500">Aadhaar</span>
+                      <p className="font-medium">{beneficiary.kycDocuments?.aadhaar || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">PAN</span>
+                      <p className="font-medium">{beneficiary.kycDocuments?.pan || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Bank Account</span>
+                      <p className="font-medium">{beneficiary.kycDocuments?.bankAccount || 'Not provided'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                {app.approvalStatus === 'manual_review' && (
+                  <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      onClick={() => setSelectedApplication(null)}
+                    >
+                      Close
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        handleRejectApplication(app.applicationId);
+                        setSelectedApplication(null);
+                      }}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      <ThumbsDown className="h-4 w-4 mr-2" />
+                      Reject Application
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        handleApproveApplication(app.applicationId);
+                        setSelectedApplication(null);
+                      }}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <ThumbsUp className="h-4 w-4 mr-2" />
+                      Approve Application
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 
@@ -1154,16 +1376,14 @@ export default function Dashboard() {
                   <div key={pattern.id} className="p-3 border rounded-lg hover:bg-gray-50">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${
-                          pattern.severity === 'high' ? 'bg-red-500' :
-                          pattern.severity === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'
-                        }`}></div>
+                        <div className={`w-3 h-3 rounded-full ${pattern.severity === 'high' ? 'bg-red-500' :
+                            pattern.severity === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'
+                          }`}></div>
                         <span className="font-medium text-gray-900">{pattern.type}</span>
                       </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        pattern.severity === 'high' ? 'bg-red-100 text-red-800' :
-                        pattern.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
-                      }`}>
+                      <span className={`px-2 py-1 text-xs rounded-full ${pattern.severity === 'high' ? 'bg-red-100 text-red-800' :
+                          pattern.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                        }`}>
                         {pattern.count} cases
                       </span>
                     </div>
@@ -1228,7 +1448,7 @@ export default function Dashboard() {
   const renderModelManagementContent = () => {
     const totalPredictions = applications?.page?.length || 0;
     const autoApproved = applications?.page?.filter(app => app.approvalStatus === 'auto_approved').length || 0;
-    
+
     const autoApprovalRate = totalPredictions ? Math.round((autoApproved / totalPredictions) * 100) : 0;
     const avgScore = creditScores?.length ? Math.round(creditScores.reduce((sum, score) => sum + score.compositeScore, 0) / creditScores.length) : 0;
 
@@ -1336,11 +1556,10 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-3">
                         <span className="font-medium text-gray-900">{model.version}</span>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          model.status === 'active' ? 'bg-green-100 text-green-800' :
-                          model.status === 'deprecated' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs rounded-full ${model.status === 'active' ? 'bg-green-100 text-green-800' :
+                            model.status === 'deprecated' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                          }`}>
                           {model.status}
                         </span>
                       </div>
@@ -1390,7 +1609,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-medium text-blue-900 mb-2">Model Health Score</h4>
                 <div className="flex items-center space-x-3">
@@ -1423,7 +1642,7 @@ export default function Dashboard() {
                 </div>
                 <p className="text-xs text-green-700">Scheduled: Weekly on Sundays</p>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Training Data:</span>
@@ -1438,7 +1657,7 @@ export default function Dashboard() {
                   <span className="font-medium">4 days</span>
                 </div>
               </div>
-              
+
               <Button className="w-full bg-green-600 hover:bg-green-700">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Trigger Retrain
@@ -1469,7 +1688,7 @@ export default function Dashboard() {
                   <span className="text-sm font-medium text-green-600">Normal</span>
                 </div>
               </div>
-              
+
               <div className="p-3 bg-blue-50 rounded-lg">
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -1477,7 +1696,7 @@ export default function Dashboard() {
                 </div>
                 <p className="text-xs text-blue-700">All systems operational</p>
               </div>
-              
+
               <Button variant="outline" className="w-full">
                 <Eye className="h-4 w-4 mr-2" />
                 View Dashboard
@@ -1548,7 +1767,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            
+
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center">
                 <User className="h-5 w-5 text-blue-600 mr-2" />
@@ -1558,7 +1777,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            
+
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
@@ -1569,7 +1788,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          
+
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900">Recent SHG Activity</h3>
             <div className="space-y-3">
@@ -1582,7 +1801,7 @@ export default function Dashboard() {
                   <Button size="sm" variant="outline">View Details</Button>
                 </div>
               </div>
-              
+
               <div className="p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
@@ -1624,7 +1843,7 @@ export default function Dashboard() {
               <CardContent className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
-                  <select 
+                  <select
                     value={selectedReportType}
                     onChange={(e) => setSelectedReportType(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -1657,7 +1876,7 @@ export default function Dashboard() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Format</label>
-                  <select 
+                  <select
                     value={reportFormat}
                     onChange={(e) => setReportFormat(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -1733,21 +1952,21 @@ export default function Dashboard() {
                     <div className="text-sm text-blue-600 font-medium">Total Records</div>
                     <div className="text-xl font-bold text-blue-900">
                       {selectedReportType === 'applications' ? applications?.page?.length || 0 :
-                       selectedReportType === 'beneficiary_summary' ? beneficiaryStats?.total || 0 :
-                       selectedReportType === 'credit_analytics' ? creditScores?.length || 0 : 156}
+                        selectedReportType === 'beneficiary_summary' ? beneficiaryStats?.total || 0 :
+                          selectedReportType === 'credit_analytics' ? creditScores?.length || 0 : 156}
                     </div>
                   </div>
                   <div className="p-3 bg-green-50 rounded-lg">
                     <div className="text-sm text-green-600 font-medium">Processed</div>
                     <div className="text-xl font-bold text-green-900">
-                      {selectedReportType === 'applications' ? 
+                      {selectedReportType === 'applications' ?
                         applications?.page?.filter((app: { approvalStatus: string }) => app.approvalStatus !== 'pending').length || 0 : 142}
                     </div>
                   </div>
                   <div className="p-3 bg-yellow-50 rounded-lg">
                     <div className="text-sm text-yellow-600 font-medium">Pending</div>
                     <div className="text-xl font-bold text-yellow-900">
-                      {selectedReportType === 'applications' ? 
+                      {selectedReportType === 'applications' ?
                         applications?.page?.filter((app: { approvalStatus: string }) => app.approvalStatus === 'manual_review').length || 0 : 14}
                     </div>
                   </div>
@@ -1802,12 +2021,12 @@ export default function Dashboard() {
                               </td>
                             </tr>
                           )) || (
-                            <tr>
-                              <td colSpan={5} className="py-8 text-center text-gray-500">
-                                No data available for preview
-                              </td>
-                            </tr>
-                          )}
+                              <tr>
+                                <td colSpan={5} className="py-8 text-center text-gray-500">
+                                  No data available for preview
+                                </td>
+                              </tr>
+                            )}
                         </tbody>
                       </table>
                     </div>
@@ -1838,9 +2057,8 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          report.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs rounded-full ${report.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
                           {report.status}
                         </span>
                         {report.status === 'completed' && (
@@ -1876,7 +2094,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">System Settings</h3>
-              
+
               <div className="p-4 border border-gray-200 rounded-lg">
                 <h4 className="font-medium text-gray-900">Auto-Approval Settings</h4>
                 <div className="mt-3 space-y-3">
@@ -1894,7 +2112,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="p-4 border border-gray-200 rounded-lg">
                 <h4 className="font-medium text-gray-900">Model Configuration</h4>
                 <div className="mt-3 space-y-3">
@@ -1909,10 +2127,10 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            
+
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">User Management</h3>
-              
+
               <div className="p-4 border border-gray-200 rounded-lg">
                 <h4 className="font-medium text-gray-900">Current User</h4>
                 <div className="mt-3 space-y-2">
@@ -1925,7 +2143,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-3">
                 <Button variant="outline" className="w-full">Change Password</Button>
                 <Button variant="outline" className="w-full">Update Profile</Button>
@@ -1954,7 +2172,7 @@ export default function Dashboard() {
             >
               <Menu className="h-5 w-5" />
             </Button>
-            
+
             <div className="flex items-center space-x-2">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
@@ -2005,7 +2223,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-        
+
         {/* Mobile Search Bar */}
         <div className="mt-3 md:hidden">
           <div className="relative">
@@ -2033,11 +2251,10 @@ export default function Dashboard() {
                     console.log("Switching to view:", item.id);
                     setActiveView(item.id);
                   }}
-                  className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeView === item.id
+                  className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeView === item.id
                       ? "bg-blue-100 text-blue-700"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  }`}
+                    }`}
                 >
                   <Icon className="h-5 w-5" />
                   <span>{item.label}</span>
@@ -2046,11 +2263,11 @@ export default function Dashboard() {
             })}
           </nav>
         </div>
-        
+
         {/* Mobile Sidebar Overlay */}
         {isMobileMenuOpen && (
           <>
-            <div 
+            <div
               className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
               onClick={() => setIsMobileMenuOpen(false)}
             />
@@ -2078,11 +2295,10 @@ export default function Dashboard() {
                         setActiveView(item.id);
                         setIsMobileMenuOpen(false);
                       }}
-                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        activeView === item.id
+                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeView === item.id
                           ? "bg-blue-100 text-blue-700"
                           : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                      }`}
+                        }`}
                     >
                       <Icon className="h-5 w-5" />
                       <span>{item.label}</span>
