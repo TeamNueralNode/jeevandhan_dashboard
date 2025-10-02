@@ -107,46 +107,46 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-2 sm:p-4 md:p-6">
+      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 items-start lg:items-center">
         {/* Left side - Information */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-4">
               NBCFDC Credit Scoring Dashboard
             </h1>
-            <p className="text-xl text-gray-600 mb-6">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-4 sm:mb-6">
               Beneficiary Credit Scoring with Income Verification Layer for Direct Digital Lending
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
-              <Users className="h-8 w-8 text-blue-600" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div className="flex items-center space-x-3 p-3 sm:p-4 bg-white rounded-lg shadow-sm">
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
               <div>
-                <div className="font-semibold">Beneficiaries</div>
-                <div className="text-sm text-gray-600">Manage profiles</div>
+                <div className="font-semibold text-sm sm:text-base">Beneficiaries</div>
+                <div className="text-xs sm:text-sm text-gray-600">Manage profiles</div>
               </div>
             </div>
-            <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
-              <TrendingUp className="h-8 w-8 text-green-600" />
+            <div className="flex items-center space-x-3 p-3 sm:p-4 bg-white rounded-lg shadow-sm">
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 flex-shrink-0" />
               <div>
-                <div className="font-semibold">Credit Scoring</div>
-                <div className="text-sm text-gray-600">AI/ML based</div>
+                <div className="font-semibold text-sm sm:text-base">Credit Scoring</div>
+                <div className="text-xs sm:text-sm text-gray-600">AI/ML based</div>
               </div>
             </div>
-            <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
-              <Database className="h-8 w-8 text-purple-600" />
+            <div className="flex items-center space-x-3 p-3 sm:p-4 bg-white rounded-lg shadow-sm">
+              <Database className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 flex-shrink-0" />
               <div>
-                <div className="font-semibold">Digital Lending</div>
-                <div className="text-sm text-gray-600">Auto approval</div>
+                <div className="font-semibold text-sm sm:text-base">Digital Lending</div>
+                <div className="text-xs sm:text-sm text-gray-600">Auto approval</div>
               </div>
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="font-semibold mb-3">Key Features:</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+            <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base">Key Features:</h3>
+            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-gray-600">
               <li>• Historical repayment behavior analysis</li>
               <li>• Income verification through consumption patterns</li>
               <li>• Composite credit scoring with risk bands</li>
@@ -155,13 +155,13 @@ export default function Home() {
             </ul>
           </div>
           
-          <Card className="bg-blue-50 border-blue-200">
-            <CardHeader>
-              <CardTitle className="text-blue-900 flex items-center">
-                <Database className="h-5 w-5 mr-2" />
+          <Card className="bg-blue-50 border-blue-200 hidden sm:block">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-blue-900 flex items-center text-base sm:text-lg">
+                <Database className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Demo Data
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Initialize sample beneficiaries, loans, and credit scores for demonstration
               </CardDescription>
             </CardHeader>
@@ -169,7 +169,7 @@ export default function Home() {
               <Button 
                 onClick={handleInitializeDemo}
                 disabled={isInitializing}
-                className="w-full"
+                className="w-full text-sm"
                 variant="outline"
               >
                 {isInitializing ? "Initializing..." : "Initialize Demo Data"}
@@ -179,17 +179,17 @@ export default function Home() {
         </div>
         
         {/* Right side - Login */}
-        <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+        <Card className="w-full max-w-md mx-auto order-1 lg:order-2">
+        <CardHeader className="pb-4 sm:pb-6">
+          <CardTitle className="text-lg sm:text-xl">Login to your account</CardTitle>
           {error && (
-            <CardDescription className="text-red-500">{error}</CardDescription>
+            <CardDescription className="text-red-500 text-xs sm:text-sm">{error}</CardDescription>
           )}
         </CardHeader>
         <form onSubmit={handleLogin}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4">
             <div className="space-y-2">
-              <label htmlFor="roleId" className="text-sm font-medium">Role ID</label>
+              <label htmlFor="roleId" className="text-xs sm:text-sm font-medium">Role ID</label>
               <Input 
                 id="roleId" 
                 placeholder="admin" 
@@ -197,39 +197,40 @@ export default function Home() {
                 value={roleId}
                 onChange={(e) => setRoleId(e.target.value)}
                 required 
+                className="text-sm sm:text-base"
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">Password</label>
+              <label htmlFor="password" className="text-xs sm:text-sm font-medium">Password</label>
               <Input 
                 id="password" 
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="pt-2">
+            <div className="pt-1 pb-2 sm:pt-2">
               <Button 
                 type="button"
-                variant="outline"
                 size="sm"
                 onClick={handleFillAdminCredentials}
-                className="w-full text-xs"
+                className="w-full text-xs bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200 border-0 font-semibold"
               >
-                Use Admin Credentials (admin/admin)
+                ✨ Use Admin Credentials (admin/admin)
               </Button>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-3 sm:space-y-4">
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full text-sm sm:text-base"
               disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
             </Button>
-            <div className="flex justify-between w-full text-sm">
+            <div className="flex justify-between w-full text-xs sm:text-sm">
               <a href="/signup" className="text-blue-500 hover:underline">
                 Create account
               </a>
@@ -239,6 +240,29 @@ export default function Home() {
             </div>
           </CardFooter>
         </form>
+        </Card>
+        
+        {/* Mobile-only Demo Data Button */}
+        <Card className="bg-blue-50 border-blue-200 sm:hidden order-3">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-blue-900 flex items-center text-base">
+              <Database className="h-4 w-4 mr-2" />
+              Demo Data
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Initialize sample data for demonstration
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={handleInitializeDemo}
+              disabled={isInitializing}
+              className="w-full text-sm"
+              variant="outline"
+            >
+              {isInitializing ? "Initializing..." : "Initialize Demo Data"}
+            </Button>
+          </CardContent>
         </Card>
       </div>
     </div>

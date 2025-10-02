@@ -51,7 +51,8 @@ import {
   Activity,
   Target,
   RefreshCw,
-  PieChart
+  PieChart,
+  Menu
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -67,6 +68,7 @@ export default function Dashboard() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [showFilters, setShowFilters] = useState(false);
   const [dateRange, setDateRange] = useState({ from: "", to: "" });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Reports state
   const [reportDateRange, setReportDateRange] = useState({ from: "", to: "" });
   const [selectedReportType, setSelectedReportType] = useState("applications");
@@ -365,18 +367,18 @@ export default function Dashboard() {
     const avgScore = creditScores?.length ? Math.round(creditScores.reduce((sum, score) => sum + score.compositeScore, 0) / creditScores.length) : 0;
 
   return (
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-3 sm:p-6">
         {/* Enhanced KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <Card className="relative overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-sm font-medium">
+              <CardTitle className="flex items-center text-xs sm:text-sm font-medium">
                 <Users className="h-4 w-4 mr-2 text-blue-600" />
                 Total Beneficiaries
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">
                 {beneficiaryStats?.total || 0}
         </div>
               <div className="flex items-center mt-1">
@@ -389,13 +391,13 @@ export default function Dashboard() {
 
           <Card className="relative overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-sm font-medium">
+              <CardTitle className="flex items-center text-xs sm:text-sm font-medium">
                 <ClipboardList className="h-4 w-4 mr-2 text-green-600" />
                 Applications Today
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">
                 {applications?.page?.length || 0}
               </div>
               <div className="flex items-center mt-1">
@@ -408,13 +410,13 @@ export default function Dashboard() {
 
           <Card className="relative overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-sm font-medium">
+              <CardTitle className="flex items-center text-xs sm:text-sm font-medium">
                 <DollarSign className="h-4 w-4 mr-2 text-purple-600" />
                 Loan Volume
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">
                 ₹{(totalAmount / 100000).toFixed(1)}L
               </div>
               <div className="flex items-center mt-1">
@@ -427,13 +429,13 @@ export default function Dashboard() {
 
           <Card className="relative overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-sm font-medium">
+              <CardTitle className="flex items-center text-xs sm:text-sm font-medium">
                 <Target className="h-4 w-4 mr-2 text-orange-600" />
                 Avg Credit Score
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">
                 {avgScore}
               </div>
               <div className="flex items-center mt-1">
@@ -446,8 +448,7 @@ export default function Dashboard() {
         </div>
 
         {/* Charts and Analytics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">          <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <PieChart className="h-5 w-5 mr-2 text-blue-600" />
@@ -583,34 +584,34 @@ export default function Dashboard() {
   };
 
   const renderApplicationsContent = () => (
-    <div className="flex-1 p-6">
+    <div className="flex-1 p-3 sm:p-6">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {/* Enhanced Header with Search and Filters */}
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900">
               Applications ({filteredAndSortedApplications.length})
             </h2>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               {selectedApplications.length > 0 && (
-                <div className="flex items-center space-x-2 mr-4">
-                  <span className="text-sm text-gray-600">{selectedApplications.length} selected</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm text-gray-600">{selectedApplications.length} selected</span>
                   <Button 
                     size="sm" 
                     onClick={() => handleBulkAction("approve")}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
                   >
-                    <Check className="h-4 w-4 mr-1" />
-                    Bulk Approve
+                    <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    Approve
                   </Button>
                   <Button 
                     size="sm" 
                     variant="outline"
                     onClick={() => handleBulkAction("reject")}
-                    className="text-red-600 border-red-600 hover:bg-red-50"
+                    className="text-red-600 border-red-600 hover:bg-red-50 text-xs sm:text-sm"
                   >
-                    <X className="h-4 w-4 mr-1" />
-                    Bulk Reject
+                    <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    Reject
                   </Button>
                 </div>
               )}
@@ -618,34 +619,35 @@ export default function Dashboard() {
                 variant="outline" 
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
+                className="text-xs sm:text-sm"
               >
-                <Filter className="h-4 w-4 mr-2" />
+                <Filter className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Filters
-                {showFilters ? <ChevronUp className="h-4 w-4 ml-1" /> : <ChevronDown className="h-4 w-4 ml-1" />}
+                {showFilters ? <ChevronUp className="h-3 w-3 sm:h-4 sm:w-4 ml-1" /> : <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />}
               </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
+              <Button variant="outline" size="sm" className="text-xs sm:text-sm hidden sm:flex">
+                <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Export
               </Button>
               {(!applications?.page || applications.page.length === 0) && (
                 <Button 
                   size="sm" 
                   onClick={handleInitializeData}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Initialize Sample Data
+                  <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  Init Data
                 </Button>
               )}
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
               <Input
-                placeholder="Search by beneficiary ID or purpose..."
+                placeholder="Search by ID or purpose..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -719,10 +721,10 @@ export default function Dashboard() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <input 
                     type="checkbox" 
                     className="rounded"
@@ -730,7 +732,7 @@ export default function Dashboard() {
                     onChange={selectAllApplications}
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button 
                     onClick={() => handleSort("beneficiaryId")}
                     className="flex items-center space-x-1 hover:text-gray-700"
@@ -741,21 +743,21 @@ export default function Dashboard() {
                     )}
                   </button>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button 
                     onClick={() => handleSort("score")}
                     className="flex items-center space-x-1 hover:text-gray-700"
                   >
-                    <span>Composite Score</span>
+                    <span>Score</span>
                     {sortField === "score" && (
                       sortDirection === "asc" ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
                     )}
                   </button>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Risk Band
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button 
                     onClick={() => handleSort("amount")}
                     className="flex items-center space-x-1 hover:text-gray-700"
@@ -1939,21 +1941,32 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Top Bar */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
-          {/* Left: Logo + Title */}
-          <div className="flex items-center space-x-4">
+          {/* Left: Mobile Menu + Logo + Title */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden p-2"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-white" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">NBCFDC Credit Dashboard</h1>
+              <h1 className="text-sm sm:text-xl font-bold text-gray-900 hidden sm:block">NBCFDC Credit Dashboard</h1>
+              <h1 className="text-sm font-bold text-gray-900 sm:hidden">NBCFDC</h1>
             </div>
           </div>
 
-          {/* Center: Global Search */}
-          <div className="flex-1 max-w-lg mx-8">
-            <div className="relative">
+          {/* Center: Global Search - Hidden on mobile */}
+          <div className="hidden md:flex flex-1 max-w-lg mx-8">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search by ID, name, or phone..."
@@ -1965,39 +1978,51 @@ export default function Dashboard() {
           </div>
 
           {/* Right: User Info + Controls */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="hidden sm:flex items-center space-x-2">
               <Bell className="h-5 w-5 text-gray-400" />
               <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                Model v1.0
+                v1.0
               </div>
-              <Globe className="h-4 w-4 text-gray-400" />
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="hidden sm:flex items-center space-x-2">
                 <User className="h-8 w-8 bg-gray-200 rounded-full p-1" />
                 <div className="text-sm">
                   <div className="font-medium">{user?.name || 'User'}</div>
-                  <div className="text-gray-500">{user?.roleName || 'Role'}</div>
+                  <div className="text-gray-500 text-xs">{user?.roleName || 'Role'}</div>
                 </div>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="flex items-center space-x-1 text-gray-600 hover:text-gray-900"
+                className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 p-2"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Logout</span>
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
         </div>
+        
+        {/* Mobile Search Bar */}
+        <div className="mt-3 md:hidden">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-full text-sm"
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-1">
-        {/* Left Sidebar */}
-        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <div className="flex flex-1 relative">
+        {/* Left Sidebar - Desktop */}
+        <div className="hidden lg:block w-64 bg-white border-r border-gray-200 flex-col">
           <nav className="flex-1 px-4 py-6 space-y-1">
             {navigationItems.map((item) => {
               const Icon = item.icon;
@@ -2021,33 +2046,80 @@ export default function Dashboard() {
             })}
           </nav>
         </div>
+        
+        {/* Mobile Sidebar Overlay */}
+        {isMobileMenuOpen && (
+          <>
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <div className="fixed inset-y-0 left-0 w-64 bg-white z-50 lg:hidden shadow-xl">
+              <div className="p-4 border-b">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-semibold text-gray-900">Menu</h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+              <nav className="px-4 py-6 space-y-1">
+                {navigationItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        console.log("Switching to view:", item.id);
+                        setActiveView(item.id);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        activeView === item.id
+                          ? "bg-blue-100 text-blue-700"
+                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          </>
+        )}
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-x-hidden">
           {/* KPI Strip */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4">
-            <div className="grid grid-cols-5 gap-6">
+          <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-lg sm:text-2xl font-bold text-gray-900">
                   {digitalLendingAnalytics?.totalApplications || 0}
                 </div>
-                <div className="text-sm text-gray-500">Total Applications (30d)</div>
+                <div className="text-xs sm:text-sm text-gray-500">Applications (30d)</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-lg sm:text-2xl font-bold text-green-600">
                   {digitalLendingAnalytics?.autoApprovalRate || 0}%
                 </div>
-                <div className="text-sm text-gray-500">Auto-Approve Rate</div>
+                <div className="text-xs sm:text-sm text-gray-500">Auto-Approve</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-lg sm:text-2xl font-bold text-blue-600">
                   {digitalLendingAnalytics?.averageProcessingTime || 0}s
                 </div>
-                <div className="text-sm text-gray-500">Avg Decision Time</div>
+                <div className="text-xs sm:text-sm text-gray-500">Avg Time</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">85%</div>
-                <div className="text-sm text-gray-500">% with Consumption Data</div>
+                <div className="text-lg sm:text-2xl font-bold text-purple-600">85%</div>
+                <div className="text-xs sm:text-sm text-gray-500">w/ Data</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">2.1%</div>
