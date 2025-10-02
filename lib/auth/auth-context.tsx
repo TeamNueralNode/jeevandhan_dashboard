@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (roleId: string, password: string) => {
+  const login = async (roleId: string, _password: string) => {
     try {
       setLoading(true);
       // Store user data after successful login

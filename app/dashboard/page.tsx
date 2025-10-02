@@ -33,17 +33,11 @@ import {
   Eye,
   ThumbsUp,
   ThumbsDown,
-  MoreHorizontal,
   Calendar,
   MapPin,
   Phone,
-  Mail,
-  Building,
-  Zap,
-  Smartphone,
   LogOut,
   ArrowUp,
-  ArrowDown,
   TrendingDown,
   X,
   Check,
@@ -80,19 +74,11 @@ export default function Dashboard() {
 
   // Fetch dashboard data - ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const beneficiaryStats = useQuery(api.beneficiaries.getBeneficiaryStats, {});
-  const creditScoreAnalytics = useQuery(api.creditScoring.getCreditScoreAnalytics, {});
   const digitalLendingAnalytics = useQuery(api.digitalLending.getDigitalLendingAnalytics, {});
   const applications = useQuery(api.digitalLending.getLendingApplications, { limit: 50 });
   const creditScores = useQuery(api.creditScoring.getCreditScores, { limit: 50 });
   
-  // Always call useQuery, but skip if no selectedApplication
-  const selectedBeneficiary = useQuery(
-    api.beneficiaries.getBeneficiaryProfile, 
-    selectedApplication ? { beneficiaryId: selectedApplication } : "skip"
-  );
-  
   // Mutations
-  const calculateScore = useMutation(api.creditScoring.calculateCreditScore);
   const reviewApplication = useMutation(api.digitalLending.reviewLendingApplication);
   const initializeData = useMutation(api.initializeData.initializeCompleteData);
 
@@ -128,7 +114,7 @@ export default function Dashboard() {
   const filteredAndSortedApplications = useMemo(() => {
     if (!applications?.page) return [];
 
-    let filtered = applications.page.filter((app: any) => {
+    const filtered = applications.page.filter((app: { beneficiaryId: string; purpose: string; approvalStatus: string; createdAt: number; applicationId: string; requestedAmount: number }) => {
       // Search filter
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
@@ -163,7 +149,7 @@ export default function Dashboard() {
 
     // Sort
     filtered.sort((a, b) => {
-      let aValue: any, bValue: any;
+      let aValue: string | number, bValue: string | number;
 
       switch (sortField) {
         case "beneficiaryId":
@@ -182,8 +168,8 @@ export default function Dashboard() {
           break;
         case "createdAt":
         default:
-          aValue = new Date(a.createdAt);
-          bValue = new Date(b.createdAt);
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
           break;
       }
 
@@ -262,9 +248,10 @@ export default function Dashboard() {
         reviewedBy: user?.name || "admin"
       });
       console.log("Application approved successfully");
-    } catch (error: any) {
-      console.error("Failed to approve application:", error);
-      alert(`Failed to approve application: ${error.message || 'Unknown error'}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Failed to approve application:", err);
+      alert(`Failed to approve application: ${err.message || 'Unknown error'}`);
     }
   };
 
@@ -277,9 +264,10 @@ export default function Dashboard() {
         reviewedBy: user?.name || "admin"
       });
       console.log("Application rejected successfully");
-    } catch (error: any) {
-      console.error("Failed to reject application:", error);
-      alert(`Failed to reject application: ${error.message || 'Unknown error'}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Failed to reject application:", err);
+      alert(`Failed to reject application: ${err.message || 'Unknown error'}`);
     }
   };
 
@@ -325,9 +313,10 @@ export default function Dashboard() {
         }
       }
       setSelectedApplications([]);
-    } catch (error: any) {
-      console.error(`Failed to ${action} applications:`, error);
-      alert(`Failed to ${action} applications: ${error.message || 'Unknown error'}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`Failed to ${action} applications:`, err);
+      alert(`Failed to ${action} applications: ${err.message || 'Unknown error'}`);
     }
   };
 
@@ -791,7 +780,7 @@ export default function Dashboard() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredAndSortedApplications.length > 0 ? (
-                filteredAndSortedApplications.map((application: any) => {
+                filteredAndSortedApplications.map((application: { applicationId: string; beneficiaryId: string; requestedAmount: number; purpose: string; approvalStatus: string; createdAt: number; processingTime?: number }) => {
                   const score = creditScores?.find(s => s.beneficiaryId === application.beneficiaryId);
                   const isSelected = selectedApplications.includes(application.applicationId);
                   return (
@@ -1241,8 +1230,6 @@ export default function Dashboard() {
   const renderModelManagementContent = () => {
     const totalPredictions = applications?.page?.length || 0;
     const autoApproved = applications?.page?.filter(app => app.approvalStatus === 'auto_approved').length || 0;
-    const manualReview = applications?.page?.filter(app => app.approvalStatus === 'manual_review').length || 0;
-    const rejected = applications?.page?.filter(app => app.approvalStatus === 'rejected').length || 0;
     
     const autoApprovalRate = totalPredictions ? Math.round((autoApproved / totalPredictions) * 100) : 0;
     const avgScore = creditScores?.length ? Math.round(creditScores.reduce((sum, score) => sum + score.compositeScore, 0) / creditScores.length) : 0;
@@ -1756,14 +1743,14 @@ export default function Dashboard() {
                     <div className="text-sm text-green-600 font-medium">Processed</div>
                     <div className="text-xl font-bold text-green-900">
                       {selectedReportType === 'applications' ? 
-                        applications?.page?.filter((app: any) => app.approvalStatus !== 'pending').length || 0 : 142}
+                        applications?.page?.filter((app: { approvalStatus: string }) => app.approvalStatus !== 'pending').length || 0 : 142}
                     </div>
                   </div>
                   <div className="p-3 bg-yellow-50 rounded-lg">
                     <div className="text-sm text-yellow-600 font-medium">Pending</div>
                     <div className="text-xl font-bold text-yellow-900">
                       {selectedReportType === 'applications' ? 
-                        applications?.page?.filter((app: any) => app.approvalStatus === 'manual_review').length || 0 : 14}
+                        applications?.page?.filter((app: { approvalStatus: string }) => app.approvalStatus === 'manual_review').length || 0 : 14}
                     </div>
                   </div>
                   <div className="p-3 bg-purple-50 rounded-lg">
@@ -1802,7 +1789,7 @@ export default function Dashboard() {
                           </tr>
                         </thead>
                         <tbody>
-                          {applications?.page?.slice(0, 5).map((app: any, index: number) => (
+                          {applications?.page?.slice(0, 5).map((app: { applicationId: string; beneficiaryId: string; requestedAmount: number; approvalStatus: string }, index: number) => (
                             <tr key={index} className="border-b">
                               <td className="py-2">{app.applicationId}</td>
                               <td className="py-2">{app.beneficiaryId}</td>
